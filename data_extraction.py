@@ -14,6 +14,12 @@ class DataExtractor:
         df = pd.read_sql(query, self.connector)
         self.connector.close()
         return df
+    
+    def retrieve_pdf_data(self, pdf_link):
+        import tabula
+        pdf_df = tabula.read_pdf(pdf_link)
+        return pdf_df
+
         
 
 

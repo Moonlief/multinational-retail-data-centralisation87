@@ -22,6 +22,26 @@ class DataCleaning:
         print("checking data types for each columns")
         print(df.info())
 
+        return df
+              
+    def clean_card_data(self,clean_pdf):
+        print("Checking for Null values:")
+        pdf_na = clean_pdf.isna().mean()*100
+        print(pdf_na)
+
+        print("Deleting rows with more than 4 Null values")
+        drop_pdf =clean_pdf.dropna(axis=0, thresh=4)
+        print(drop_pdf)
+
+        print("Looking for duplicates:")
+        print(clean_pdf.duplicated())
+
+        print("checking data types for each columns")
+        print(clean_pdf.info())
+
+        return clean_pdf
+    
+
 
 
 
