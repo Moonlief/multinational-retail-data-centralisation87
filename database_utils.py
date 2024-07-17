@@ -7,6 +7,7 @@ class DatabaseConnector:
         self.database = None
         self.port = None
         self.engine = None
+        pass
 
 
     def read_db_creds (self):
@@ -21,6 +22,7 @@ class DatabaseConnector:
         
         print(f"Returning the dictionary of the credentials{data_loaded}")
         print("Credentials loaded sucessfully!!")
+        return data_loaded
       
 
 
@@ -45,5 +47,6 @@ class DatabaseConnector:
         engine = connection
         df.to_sql(table_name, engine, if_exists='replace', index=False)
         print(f"Data uploaded successfully to {table_name} table.")
+        return engine
 
 
