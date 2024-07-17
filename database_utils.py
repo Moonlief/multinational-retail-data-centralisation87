@@ -1,7 +1,4 @@
 
-
-
-
 class DatabaseConnector:
     def __init__(self):
         self.host = None
@@ -21,28 +18,32 @@ class DatabaseConnector:
         self.password = data_loaded['RDS_PASSWORD']
         self.database = data_loaded['RDS_DATABASE']
         self.port = data_loaded['RDS_PORT']
-        print("Credentials loaded successfully!")
+        
+        print(f"Returning the dictionary of the credentials{data_loaded}")
+        print("Credentials loaded sucessfully!!")
+      
 
 
     def init_db_engine(self):
         from sqlalchemy import create_engine
         DATABASE_TYPE = 'postgresql'
         DBAPI = 'psycopg2'
-        engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}")
-        connection = engine.execution_options(isolation_level='AUTOCOMMIT').connect()
+        self.engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}")
+        connection = self.engine.execution_options(isolation_level='AUTOCOMMIT').connect()
         print("Connection successful!")
         return connection
+
     
     def list_db_tables(self):
         from sqlalchemy import inspect
         inspector = inspect(self.engine)
-        inspector.get_table_names()
+        tables =inspector.get_table_names()
+        print("Tables in the database:", tables)
+        return tables
     
-    #def upload_to_db():
+    def upload_to_db(self,connection, df, table_name):
+        engine = connection
+        df.to_sql(table_name, engine, if_exists='replace', index=False)
+        print(f"Data uploaded successfully to {table_name} table.")
 
-
-connector = DatabaseConnector()
-connector.read_db_creds()
-connector.init_db_engine()
-connector.list_db_tables()
 
