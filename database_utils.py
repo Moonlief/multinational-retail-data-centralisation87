@@ -9,18 +9,20 @@ class DatabaseConnector:
         self.engine = None
 
 
-    def read_db_creds (self):
+    def read_db_creds (self,yaml_file):
         import yaml
-        with open('/Users/student/AICORE/AWS/Project_3/db_creds.yaml', 'r') as credentials:
+        with open(yaml_file, 'r') as credentials:
             data_loaded = yaml.safe_load(credentials)
-        self.host= data_loaded['RDS_HOST']
-        self.user = data_loaded['RDS_USER']
-        self.password = data_loaded['RDS_PASSWORD']
-        self.database = data_loaded['RDS_DATABASE']
-        self.port = data_loaded['RDS_PORT']
+        self.host= data_loaded['HOST']
+        self.user = data_loaded['USER']
+        self.password = data_loaded['PASSWORD']
+        self.database = data_loaded['DATABASE']
+        self.port = data_loaded['PORT']
         
-        print(f"Returning the dictionary of the credentials{data_loaded}")
         print("Credentials loaded sucessfully!!")
+        return yaml_file
+
+   
       
 
 
@@ -29,6 +31,14 @@ class DatabaseConnector:
         DATABASE_TYPE = 'postgresql'
         DBAPI = 'psycopg2'
         self.engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}")
+        
+        connection = self.engine.execution_options(isolation_level='AUTOCOMMIT').connect()
+        print("Connection successful!")
+        return connection
+
+    def init_db_engine_postgresql(self):
+        from sqlalchemy import create_engine
+        self.engine = create_engine(f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}")
         connection = self.engine.execution_options(isolation_level='AUTOCOMMIT').connect()
         print("Connection successful!")
         return connection
