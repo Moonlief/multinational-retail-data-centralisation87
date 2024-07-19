@@ -23,7 +23,6 @@ class DatabaseConnector:
         return yaml_file
 
    
-      
 
 
     def init_db_engine(self):
