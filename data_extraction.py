@@ -21,7 +21,9 @@ class DataExtractor:
     
     def retrieve_pdf_data(self, pdf_link):
         read_pdf = tabula.read_pdf(pdf_link, pages="all")
-        pdf_df = pd.DataFrame(read_pdf)
+        print(read_pdf)
+        pdf_df_list = [pd.DataFrame(page) for page in read_pdf]
+        pdf_df = pd.concat(pdf_df_list, ignore_index=True)
         self.connector.close()
         return pdf_df
 
