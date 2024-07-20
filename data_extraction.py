@@ -1,5 +1,8 @@
 
 import pandas as pd
+import tabula
+
+
 
 class DataExtractor:
    
@@ -17,15 +20,10 @@ class DataExtractor:
         return df
     
     def retrieve_pdf_data(self, pdf_link):
-        import tabula
-        read_pdf = tabula.read_pdf(pdf_link)
-        return read_pdf
-    
-    def load_pdf_df(self, pdf_data):
-        pdf_df = pd.DataFrame(pdf_data)
+        read_pdf = tabula.read_pdf(pdf_link, pages="all")
+        pdf_df = pd.DataFrame(read_pdf)
         self.connector.close()
         return pdf_df
-
 
         
 

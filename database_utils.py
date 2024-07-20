@@ -1,4 +1,9 @@
 
+import yaml
+from sqlalchemy import create_engine
+from sqlalchemy import inspect
+
+
 class DatabaseConnector:
     def __init__(self):
         self.host = None
@@ -7,10 +12,13 @@ class DatabaseConnector:
         self.database = None
         self.port = None
         self.engine = None
+       
+       
+        
 
 
     def read_db_creds (self,yaml_file):
-        import yaml
+        
         with open(yaml_file, 'r') as credentials:
             data_loaded = yaml.safe_load(credentials)
         self.host= data_loaded['HOST']
@@ -26,7 +34,7 @@ class DatabaseConnector:
 
 
     def init_db_engine(self):
-        from sqlalchemy import create_engine
+        
         DATABASE_TYPE = 'postgresql'
         DBAPI = 'psycopg2'
         self.engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}")
@@ -36,7 +44,6 @@ class DatabaseConnector:
         return connection
 
     def init_db_engine_postgresql(self):
-        from sqlalchemy import create_engine
         self.engine = create_engine(f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}")
         connection = self.engine.execution_options(isolation_level='AUTOCOMMIT').connect()
         print("Connection successful!")
@@ -44,7 +51,7 @@ class DatabaseConnector:
 
     
     def list_db_tables(self):
-        from sqlalchemy import inspect
+       
         inspector = inspect(self.engine)
         tables =inspector.get_table_names()
         print("Tables in the database:", tables)
