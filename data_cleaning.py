@@ -2,6 +2,8 @@
 
 import pandas as pd
 import re
+import numpy as np
+
 
 
 class DataCleaning:
@@ -61,33 +63,46 @@ class DataCleaning:
         return df_api
 
 
-    def convert_product_weights(self, csv_df):
-        def convert_weight(weight):
-            weight = re.sub(r'[^\d.]+', '', str(weight))
+    def convert_product_weights(self, products_df):
+
+        products_df = products_df.dropna(subset=['weight'])
+
+        products_df['weight'] = products_df['weight'].str.replace('g .', 'g')
+
+        def convert_to_kg(weight):
+            def calculate_single_value(weight):
+                if ' x ' in weight:
+                    weight = weight.replace('g', '').split(' x ')
+                    first_part = float(weight[0].strip())
+                    second_part = float(weight[1].strip())
+                    return first_part * second_part
+                return None
+
+            def convert_single_unit(value, unit):
+                if unit == 'kg':
+                    return float(value)
+                elif unit == 'g':
+                    return float(value) / 1000
+                elif unit == 'ml':
+                    return float(value) * 0.001
+                elif unit == 'oz':
+                    return float(value) * 0.0283495
+                else:
+                    return None
+
+            # Check if weight contains ' x ' to calculate the combined value
+            combined_value = calculate_single_value(weight)
+            if combined_value is not None:
+                return convert_single_unit(combined_value, 'g')  # Assuming the combined value is in grams
+
+            # If not, split the weight into value and unit
+            for unit in ['kg', 'g', 'ml', 'oz']:
+                if unit in weight:
+                    value = weight.replace(unit, '').strip()
+                    return convert_single_unit(value, unit)
             
-            if 'kg' in weight:
-                con_weight = weight.replace('kg', '').strip()
-                return float(con_weight)
-            elif 'g' in weight:
-                con_weight = weight.replace('g', '').strip()
+            return None  # If no valid unit is found
+        products_df['weight_kg'] = products_df['weight'].apply(convert_to_kg)
 
-                return float(con_weight)/1000
-            elif 'ml' in weight:
-                con_weight = weight.replace('ml', '').strip()
-                return float(con_weight)/1000
-            else:
-                return float(weight) 
-
-        csv_df['weight'] = csv_df['weight'].apply(convert_weight)
-        print(csv_df['weight'].isna().sum())
-        csv_df['weight'].fillna(csv_df['weight'].mean(), inplace=True)
-        return csv_df
-
-
-
-
-
-
-
-
+        return products_df
 
