@@ -65,9 +65,8 @@ class DataCleaning:
 
     def convert_product_weights(self, products_df):
 
-        products_df = products_df.dropna(subset=['weight'])
-
-        products_df['weight'] = products_df['weight'].str.replace('g .', 'g')
+        products_df = products_df.dropna(subset=['weight']).copy()
+        products_df.loc[:, 'weight'] = products_df['weight'].str.replace('g .', 'g')
 
         def convert_to_kg(weight):
             def calculate_single_value(weight):
@@ -93,7 +92,7 @@ class DataCleaning:
             # Check if weight contains ' x ' to calculate the combined value
             combined_value = calculate_single_value(weight)
             if combined_value is not None:
-                return convert_single_unit(combined_value, 'g')  # Assuming the combined value is in grams
+                return convert_single_unit(combined_value, 'g') 
 
             # If not, split the weight into value and unit
             for unit in ['kg', 'g', 'ml', 'oz']:
@@ -101,8 +100,20 @@ class DataCleaning:
                     value = weight.replace(unit, '').strip()
                     return convert_single_unit(value, unit)
             
-            return None  # If no valid unit is found
-        products_df['weight_kg'] = products_df['weight'].apply(convert_to_kg)
+            return None  
+        
+        products_df.loc[:, 'weight_kg'] = products_df['weight'].apply(convert_to_kg)
+
 
         return products_df
+    
+
+
+
+
+    
+    def clean_products_data(self, products_df):
+        products_df = products_df.dropna(subset=['weight_kg'])
+        return products_df
+
 
