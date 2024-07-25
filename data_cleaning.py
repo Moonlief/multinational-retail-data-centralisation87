@@ -108,9 +108,6 @@ class DataCleaning:
         return products_df
     
 
-
-
-
     
     def clean_products_data(self, products_df):
         products_df = products_df.dropna(subset=['weight_kg'])
