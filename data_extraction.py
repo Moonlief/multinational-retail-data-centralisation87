@@ -54,11 +54,19 @@ class DataExtractor:
             else:
                 return response.raise_for_status()
     
-    def extract_from_s3(self,s3_bucket, s3_object_key,local_file_path):
+    def download_csv_from_s3(self,s3_bucket, s3_object_key,local_file_path):
         s3 = boto3.client('s3')
         s3.download_file(s3_bucket, s3_object_key, local_file_path)
         df_csv = pd.read_csv(s3_object_key)
         df_s3 = pd.DataFrame(df_csv)
+        return df_s3
+    
+    def extract_json_from_s3(self,s3_bucket, s3_object_key):
+        s3 = boto3.client('s3')
+        obj = s3.get_object(Bucket=s3_bucket, Key=s3_object_key)
+        
+        df_json = pd.read_json(s3_object_key)
+        df_s3 = pd.DataFrame(df_json)
         return df_s3
     
 
