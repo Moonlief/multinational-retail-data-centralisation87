@@ -15,8 +15,8 @@ class DataCleaning:
         df_na = df.isna().mean()*100
         print(df_na)
 
-        print("Deleting rows with more than 4 Null values")
-        drop_df=df.dropna(axis=0, thresh=4)
+        print("Deleting rows with more than 2 Null values")
+        drop_df=df.dropna(axis=0, thresh=2)
         print(drop_df)
 
         print("Looking for duplicates:")
@@ -112,5 +112,31 @@ class DataCleaning:
     def clean_products_data(self, products_df):
         products_df = products_df.dropna(subset=['weight_kg'])
         return products_df
+    
+
+    def date_formatting(self, df, column):
+        df[column] = pd.to_datetime(df[column], errors='coerce')
+        return df
+    
+    def email_clean(self, df, column):
+        df[column] = df[column].apply(lambda x: x if '@' in str(x) else np.nan)
+        return df
+    
+
+    def gibberish_clean(self, df,column_string):
+        pattern = r'\d'
+        gib_rows= df[column_string].str.contains(pattern, regex=True, na=False)
+        drop_df= df[~ gib_rows]
+        return(drop_df)
+
+    
+    def null_replace(self, df):
+        replace_df = df.replace('NULL', pd.NA)
+        drop_df = replace_df.dropna(axis=0, thresh=2)
+        return drop_df
+
+
+
+        
 
 
