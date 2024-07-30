@@ -126,8 +126,8 @@ class DataCleaning:
     def gibberish_clean(self, df,column_string):
         pattern = r'\d'
         gib_rows= df[column_string].str.contains(pattern, regex=True, na=False)
-        drop_df= df[~ gib_rows]
-        return(drop_df)
+        #drop_df= df[~ gib_rows]
+        return(gib_rows)
 
     
     def null_replace(self, df):

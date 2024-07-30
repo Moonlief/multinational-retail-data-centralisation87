@@ -64,9 +64,8 @@ class DataExtractor:
     def extract_json_from_s3(self,s3_bucket, s3_object_key):
         s3 = boto3.client('s3')
         obj = s3.get_object(Bucket=s3_bucket, Key=s3_object_key)
-        
-        df_json = pd.read_json(s3_object_key)
-        df_s3 = pd.DataFrame(df_json)
+        content = obj['Body'].read().decode('utf-8')
+        df_s3 = pd.read_json(content)
         return df_s3
     
 
