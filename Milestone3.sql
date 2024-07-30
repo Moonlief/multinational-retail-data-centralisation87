@@ -133,7 +133,7 @@ ALTER TABLE dim_card_details
 
 
 
--- TASK 8:
+-- TASK 8:Primary Keys
 
 --- Adding Primary Keys
 
@@ -167,35 +167,18 @@ ADD CONSTRAINT user_uuid_fk
 FOREIGN KEY (user_uuid) 
 REFERENCES dim_users (user_uuid);
 
+-- Inserting unique values (foreign key) from the child table (orders_table)
+--into the parent table
+-- dim_card_details as primary key
+
+INSERT INTO dim_card_details (card_number)
+SELECT DISTINCT orders_table.card_number
+FROM orders_table
+LEFT JOIN dim_card_details ON orders_table.card_number = dim_card_details.card_number
+WHERE dim_card_details.card_number IS NULL;
+
 
 ALTER TABLE orders_table 
 ADD CONSTRAINT card_number_fk 
 FOREIGN KEY (card_number) 
 REFERENCES dim_card_details (card_number);
----not working?
-
-
---helper
-
-
-
-
-
-
-select * from dim_users WHERE user_uuid = 'NULL';
-
-'level_0,
-	index
-	date_uuid, dimdatetimes x
-	user_uuid - dim_users x
-	card_number - dimcarddetails
-	store_code - dim_store_details
-	product_code - dim_products
-	product_quantity'
-
-	
-select * from dim_users;
-
-
-
-select max(length(expiry_date )) from dim_card_details
