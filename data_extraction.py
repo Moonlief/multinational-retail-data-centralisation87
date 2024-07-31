@@ -31,28 +31,27 @@ class DataExtractor:
         response = requests.get(endpoint, headers=headers)
         if response.status_code == 200:
             data = response.json()
-            number_of_stores = len(data)
-            print(number_of_stores)
-
-            return print(data.keys())
-        
+            number_of_stores = data.get('number_stores')
+            return(number_of_stores)
         else:
-            print(f"Request failed with status code: {response.status_code}")
-            print(f"Response Text: {response.text}")
-            return response.text
+            response.raise_for_status()
+
     
     
     def retrieve_stores_data(self, endpoint, headers, number_of_stores):
         stores_data = []
-        for store_number in range(1, number_of_stores + 1):
+        for store_number in range(1, number_of_stores + 2):
             response = requests.get(endpoint.format(store_number=store_number), headers=headers)
             if response.status_code == 200:
                 stores_data.append(response.json())
-                api_df = pd.DataFrame(stores_data)
-                return api_df
-
+                
             else:
-                return response.raise_for_status()
+                print(f"Failed to retrieve data for store number {store_number}. Status code: {response.status_code}")
+        
+        return pd.DataFrame(stores_data)   
+
+ 
+
     
     def download_csv_from_s3(self,s3_bucket, s3_object_key,local_file_path):
         s3 = boto3.client('s3')

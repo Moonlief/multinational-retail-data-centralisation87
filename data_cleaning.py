@@ -132,8 +132,10 @@ class DataCleaning:
     
     def null_replace(self, df):
         replace_df = df.replace('NULL', pd.NA)
-        drop_df = replace_df.dropna(axis=0, thresh=2)
-        return drop_df
+        #drop_df = replace_df.dropna(axis=0, thresh=2)
+        return replace_df
+    
+    
 
 
 
