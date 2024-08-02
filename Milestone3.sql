@@ -36,8 +36,10 @@ ALTER TABLE orders_table
 
 --- Clean data 
 ----- Deleting rows where the longitude has letters			
-		DELETE FROM dim_store_details WHERE longitude ~ '[A-Za-z]' 
-			
+		DELETE FROM dim_store_details WHERE longitude ~ '[A-Za-z]' AND store_type NOT LIKE 'Web Portal';
+
+
+
 ----- reformatting dates			
 	
 			UPDATE dim_store_details SET opening_date = REPLACE (opening_date, '1994 November 24','1994-11-24');
@@ -63,7 +65,7 @@ ALTER TABLE orders_table
 		ALTER TABLE dim_store_details
 				ALTER COLUMN longitude TYPE float USING longitude::double precision,
 				ALTER COLUMN locality  TYPE VARCHAR(255),
-				ALTER COLUMN store_code TYPE VARCHAR(11),
+				ALTER COLUMN store_code TYPE VARCHAR(17),
 				ALTER COLUMN opening_date TYPE date USING opening_date ::date,
 				ALTER COLUMN store_type TYPE VARCHAR(255),
 				ALTER COLUMN store_type DROP NOT NULL,	
@@ -71,7 +73,6 @@ ALTER TABLE orders_table
 				ALTER COLUMN country_code TYPE varchar(2),
 				ALTER COLUMN continent TYPE VARCHAR(255),
 				ALTER COLUMN staff_numbers TYPE SMALLINT USING staff_numbers::smallint;
-			
 
 	
 -- TASK 4 dim_products
@@ -168,12 +169,19 @@ ALTER TABLE orders_table
 		
 		ALTER TABLE dim_products
 			ADD PRIMARY KEY (product_code);
-		
+
+DELETE FROM dim_store_details WHERE store_code IS NULL
+
+
 		ALTER TABLE dim_store_details
 			ADD PRIMARY KEY (store_code);
 		
 		ALTER TABLE dim_users
 			ADD PRIMARY KEY (user_uuid);
+
+		ALTER TABLE orders_table
+			ADD PRIMARY KEY (index);
+
 
 
 
@@ -194,10 +202,6 @@ ALTER TABLE orders_table
 		--into the parent table dim_store_details
 		-- dstore_code  as primary key
 		
-		--- changing the varchar limit in the parent table
-		
-			ALTER TABLE dim_store_details
-				ALTER COLUMN store_code TYPE VARCHAR(17);
 			
 		--- inserting the missing vlaue from the child table into the parent table
 			INSERT INTO dim_store_details (store_code)
@@ -214,7 +218,7 @@ ALTER TABLE orders_table
 			REFERENCES dim_store_details (store_code);
 
 
----
+--- 
 
 		ALTER TABLE orders_table 
 		ADD CONSTRAINT product_code_fk 

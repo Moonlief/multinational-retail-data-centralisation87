@@ -40,7 +40,7 @@ class DataExtractor:
     
     def retrieve_stores_data(self, endpoint, headers, number_of_stores):
         stores_data = []
-        for store_number in range(1, number_of_stores + 2):
+        for store_number in range(0, number_of_stores + 1):
             response = requests.get(endpoint.format(store_number=store_number), headers=headers)
             if response.status_code == 200:
                 stores_data.append(response.json())
