@@ -184,52 +184,57 @@ Hint: You will need the SQL command LEAD.
 
 
 
----
-SELECT 
-    year,
-	SUM(time_difference)
-FROM 
-    (SELECT 
-        year,
-        LEAD(converted_time) OVER (ORDER BY converted_time) AS next_sale,
-        LEAD(converted_time) OVER (ORDER BY converted_time) - converted_time AS time_difference
-     FROM 
-		(SELECT
-		year,
-        TO_TIMESTAMP(timestamp, 'HH24:MI:SS')::TIME AS converted_time
-		FROM dim_date_times)) as cs
+--- Adding two new columns
 
-GROUP BY 
-    cs.year
-ORDER BY 
-    year ASC;
+ALTER TABLE dim_date_times
+	ADD COLUMN IF NOT EXISTS converted_timestamp timestamp
+ALTER TABLE dim_date_times
+	ADD COLUMN IF NOT EXISTS concat_timestamp varchar(100)
 
----
+-- concat the time values into one column
+UPDATE dim_date_times
+	SET concat_timestamp = 
+		CONCAT(year,'-',month,'-',day,' ',timestamp)
+
+--- converting the concat_timestamp into timestamp data
+UPDATE dim_date_times
+	SET converted_timestamp = TO_TIMESTAMP(concat_timestamp, 'YYYY-MM-DD HH24:MI:SS')
 
 
-
---- helper queries
-
-SELECT 
-    timestamp,
-    TO_TIMESTAMP(timestamp, 'HH24:MI:SS')::TIME AS converted_time
-FROM 
-    dim_date_times;
+---- 
+SELECT
+	year
+	,CONCAT(
+			'"hours": '
+			, extract(HOUR from AVG_time_difference)
+			, ' "minutes": '
+			, extract(MINUTE from AVG_time_difference)
+			, ' "seconds": '
+			, FLOOR( extract(SECOND from AVG_time_difference))
+			, ' "milliseconds": '
+			, FLOOR( (extract(SECOND from AVG_time_difference) - (FLOOR(extract(SECOND from AVG_time_difference)))) * 100)
+			) 
+				as time_difference
 	
-SELECT o.index, 
-	o.product_quantity * pro.product_price as total_sales
-	FROM orders_table as o
+FROM
 
-	JOIN dim_products as pro
-	ON pro.product_code = o.product_code;
-
-
-SELECT * FROM orders_table
-
-SELECT * FROM dim_card_details
-SELECT * FROM dim_date_times where timestamp = '00:00:06'
-
-SELECT * FROM dim_products
-SELECT * FROM dim_store_details
-SELECT * FROM dim_users
+		(
+		SELECT 
+		    year
+			,AVG(time_difference) as AVG_time_difference
+			
+		FROM 
+		    (
+			SELECT
+				year
+				, converted_timestamp
+		        , LEAD(converted_timestamp) OVER (ORDER BY converted_timestamp) AS next_sale
+		        , LEAD(converted_timestamp) OVER (ORDER BY converted_timestamp) - converted_timestamp AS time_difference
+		     FROM dim_date_times
+			ORDER BY converted_timestamp
+			) as cs
+		
+		GROUP BY 
+		    year
+		)
 
